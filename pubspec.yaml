@@ -1,0 +1,43 @@
+name: phone_book
+description: "A new Flutter project."
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.1
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
+  url_launcher: ^6.2.2
+  intl: ^0.19.0
+  webview_flutter: ^4.4.2
+  path_provider: ^2.1.1
+  html_editor_enhanced: ^2.5.1
+  file_picker: ^5.5.0
+  appflowy_editor: ^0.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+   - assets/www/index.html
+   - assets/www/styles/style.css
+
+
+
