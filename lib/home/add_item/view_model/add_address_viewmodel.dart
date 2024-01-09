@@ -27,7 +27,7 @@ class AddaddressViewModel extends ChangeNotifier {
   Address? currentEditItemAddress;
   PhoneBookModel? currentEditItemPhoneBook;
   String DateSelected = "";
- TextEditingController  fromDateController = TextEditingController();
+  TextEditingController fromDateController = TextEditingController();
 
   List<String> specificTimeZones = [
     'UTC',
@@ -46,11 +46,11 @@ class AddaddressViewModel extends ChangeNotifier {
 
   updateDateFrom(date) {
     DateSelected = DateFormat('MMM d, yyyy').format(date).toString();
-  fromDateController.text = DateSelected;
+    fromDateController.text = DateSelected;
     notifyListeners();
   }
 
-  updateFromDatecontroller (TextEditingController controller) {
+  updateFromDatecontroller(TextEditingController controller) {
     fromDateController = controller;
   }
 
@@ -519,4 +519,5 @@ class AddaddressViewModel extends ChangeNotifier {
     'Zambia',
     'Zimbabwe',
   ];
+
 }

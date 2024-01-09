@@ -4,7 +4,6 @@ import 'package:phone_book/home/add_item/model/phone_book_model.dart';
 import 'package:phone_book/home/add_item/view/add_item_screen.dart';
 import 'package:phone_book/home/add_item/view_model/add_address_viewmodel.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 enum ContactType {
   addressBook,
@@ -36,7 +35,7 @@ class _LounchPageState extends State<LounchPage> {
               ? Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>  AddItemScreen(
+                    builder: (context) =>  const AddItemScreen(
                       addType: AddType.addAddress,
                     ),
                   ),
@@ -44,7 +43,7 @@ class _LounchPageState extends State<LounchPage> {
               : Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>  AddItemScreen(
+                    builder: (context) =>  const AddItemScreen(
                       addType: AddType.addPhone,
                     ),
                   ),
@@ -315,8 +314,8 @@ class PhoneBuilder extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 // const number = '09656234154';
-                await launch('tel:${8888888888}')
-                    .then((value) => print(value)); //set the number here
+                //await launch('tel:${8888888888}')
+                   // .then((value) => print(value)); //set the number here
               },
               child: Container(
                 margin: const EdgeInsets.only(left: 5),

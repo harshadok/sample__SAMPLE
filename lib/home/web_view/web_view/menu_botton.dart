@@ -115,17 +115,14 @@ class _MenuState extends State<Menu> {
   Future<void> _onLoadLocalFileExample(
       WebViewController controller, BuildContext context) async {
     final String pathToIndex = await _prepareLocalFile();
-
     await controller.loadFile(pathToIndex);
   }
 
   static Future<String> _prepareLocalFile() async {
     final String tmpDir = (await getTemporaryDirectory()).path;
     final File indexFile = File('$tmpDir/www/index.html');
-
     await Directory('$tmpDir/www').create(recursive: true);
     await indexFile.writeAsString(kExamplePage);
-
     return indexFile.path;
   }
 

@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_book/home/add_item/model/address_model.dart';
 import 'package:phone_book/home/add_item/model/country_model.dart';
@@ -8,10 +9,10 @@ import 'package:phone_book/home/add_item/widgets/common_bottomSheet.dart';
 import 'package:phone_book/home/add_item/widgets/common_textfrom.dart';
 import 'package:phone_book/home/add_item/view_model/add_address_viewmodel.dart';
 import 'package:phone_book/home/add_item/model/country_codes.dart';
-import 'package:phone_book/home/web_view/src/webview_stack.dart';
-import 'package:phone_book/home/web_view/webview.dart';
+import 'package:phone_book/home/web_view/html_editor/html_editor.dart';
+import 'package:phone_book/home/web_view/web_view/webview_stack.dart';
 import 'package:provider/provider.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:async';
 
 enum AddType { addAddress, addPhone }
 
@@ -46,11 +47,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final timezoneController = TextEditingController();
   final fromDateController = TextEditingController();
   final toDateController = TextEditingController();
-  late final WebViewController controller;
-  bool changeContiner = false;
-  String webViewText = '';
 
-  //phone book controller are here--->
+  bool changeContiner = false;
+  bool? changeContineriew;
+  bool? boolCheckHost;
+
+  //phonebook controller are here--->
   final countrynamePhoneController = TextEditingController();
   final phonetypeController = TextEditingController();
   final areaCodeController = TextEditingController();
@@ -58,11 +60,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final phoneExtensionController = TextEditingController();
   final commentsController = TextEditingController();
 
+  final ValueNotifier<String> htmlString = ValueNotifier<String>('');
+  ScrollPhysics physics = const AlwaysScrollableScrollPhysics();
+
   @override
   void initState() {
-    if (widget.addType == AddType.addAddress) {
-      controller = WebViewController();
-    }
+    changeContineriew = false;
+    if (widget.addType == AddType.addAddress) {}
     if (widget.addressItem != null) {
       addressTypeController.text = widget.addressItem!.addressType!;
       cityController.text = widget.addressItem!.city;
@@ -321,469 +325,475 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   ///************************************* */ ADDRESS BOOK LIST VIEW=======***********************************
 
-  ListView addAddressListview({
+  addAddressListview({
     required BuildContext context,
     required AddaddressViewModel addadressViewmodel,
   }) {
-    return ListView(
-      children: [
-        customeTextField(context,
-            Controller: addressTypeController,
-            hintext: "Address Type",
-            enabled: false,
-            suffixIcon: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.arrow_drop_down,
-                size: 30,
-                color: Colors.black,
-              ),
-            ), onPresstextFieldContiner: () {
-          customeBottomSheet(
-              addtypeMethod: AddType.addAddress,
-              context: context,
-              listileOntap2: () {
-                addressTypeController.text = "Secondary Address";
-              },
-              listileOntap1: () {
-                addressTypeController.text = "Primary Address";
-              });
-        },
-            trailingIcon: SizedBox(
-                height: 55,
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.info),
-                  iconSize: 25,
-                  color: Colors.green[900],
-                ))),
-        Container(
-          margin: const EdgeInsets.only(
-            left: 20,
-            right: 10,
-            top: 10,
-          ),
-          child: const Text(
-            "Location Coordinates",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ),
-        addadressViewmodel.changeAddressFeild == true
-            ? Container(
-                height: 60,
-                margin: const EdgeInsets.only(
-                  left: 20,
-                  right: 10,
-                  top: 10,
-                ),
-                padding: const EdgeInsets.only(left: 10.0, top: 10),
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 184, 207, 230),
-                    border: Border.all(
-                        width: 2,
-                        color: const Color.fromARGB(255, 93, 156, 97)),
-                    borderRadius: BorderRadius.circular(6)),
-                child: Text(
-                  selectedAddressController.text,
-                  style: const TextStyle(fontSize: 15, color: Colors.black),
-                ),
-              )
-            : customeTextField(context,
-                continreHight: 35,
-                enabled: false,
-                hintext: "Click here to pick your location",
-                onPresstextFieldContiner: () async {
-                await addadressViewmodel.determinePosition().then((_) {
-                  selectedAddressController.text =
-                      addadressViewmodel.unserLocation!;
-                });
-              },
-                prefixIcon: const Icon(
-                  Icons.my_location_rounded,
-                  color: Colors.black,
-                )),
-        customeTextField(context,
-            hintext: "Address Line 1",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel.clearTextFormFild(AddressLine1Controller);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            trailingIcon: SizedBox(
-                height: 55,
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.info),
-                  iconSize: 25,
-                  color: Colors.green[900],
-                )),
-            Controller: AddressLine1Controller),
-        customeTextField(context,
-            hintext: "Address Line 2",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel.clearTextFormFild(AddressLine2Controller);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            Controller: AddressLine2Controller),
-        customeTextField(context,
-            hintext: "postbox",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel.clearTextFormFild(postboxController);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            Controller: postboxController),
-        customeTextField(context,
-            hintext: "Apartment No",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel.clearTextFormFild(apartmentController);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            Controller: apartmentController),
-        customeTextField(context,
-            hintext: "Street No",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel
-                      .clearTextFormFild(selectedAdressNoController);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            trailingIcon: SizedBox(
-                height: 55,
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.info),
-                  iconSize: 25,
-                  color: Colors.green[900],
-                )),
-            Controller: selectedAdressNoController),
-        customeTextField(
+    return ValueListenableBuilder(
+        valueListenable: htmlString,
+        builder: (
           context,
-          hintext: "Street Name",
-          suffixIcon: IconButton(
-              onPressed: () {
-                addadressViewmodel
-                    .clearTextFormFild(selectedAdressNameController);
-              },
-              icon: const Icon(
-                Icons.close,
-                size: 20,
-                weight: 2,
-              )),
-          Controller: selectedAdressNameController,
-          trailingIcon: SizedBox(
-              height: 55,
-              child: IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.info),
-                iconSize: 25,
-                color: Colors.green[900],
-              )),
-        ),
-        //here selecting country code
-        customeTextField(
-          context,
-          Controller: countrycodeController,
-          enabled: false,
-          hintext: "Country Code",
-          onPresstextFieldContiner: () {
-            commoneBottomSheet(
-                selectedCountry: (_) {},
-                onPressed: (item) {
-                  countrycodeController.text = item;
-                  stateController.clear();
-                  countyController.clear();
-                  addadressViewmodel.getstatelist(item);
-                },
-                context: context,
-                titile: "Countrycode",
-                itemlist: addadressViewmodel.countries);
-          },
-          suffixIcon: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.arrow_drop_down,
-              size: 30,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        //here are the state code
-        customeTextField(
-          context,
-          Controller: stateController,
-          enabled: false,
-          hintext: "State",
-          onPresstextFieldContiner: () {
-            commoneBottomSheet(
-                selectedCountry: (_) {},
-                onPressed: (item) {
-                  stateController.text = item;
-                  countyController.clear();
-                },
-                context: context,
-                titile: "State",
-                itemlist: addadressViewmodel.currentStateList);
-          },
-          suffixIcon: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.arrow_drop_down,
-              size: 30,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        //here are the state code
-        customeTextField(
-          context,
-          Controller: countyController,
-          enabled: false,
-          hintext: "County",
-          onPresstextFieldContiner: () {
-            commoneBottomSheet(
-                selectedCountry: (_) {},
-                onPressed: (item) {
-                  countyController.text = item;
-                },
-                context: context,
-                titile: "County",
-                itemlist: addadressViewmodel.currentCountyList);
-          },
-          suffixIcon: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.arrow_drop_down,
-              size: 30,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        customeTextField(context,
-            hintext: "City",
-            suffixIcon: IconButton(
-                onPressed: () {
-                  addadressViewmodel.clearTextFormFild(cityController);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 20,
-                  weight: 2,
-                )),
-            Controller: cityController),
-        customeTextField(
-          context,
-          Controller: zipcodeController,
-          hintext: "ZipCode",
-          suffixIcon: IconButton(
-              onPressed: () {
-                addadressViewmodel.clearTextFormFild(zipcodeController);
-              },
-              icon: const Icon(
-                Icons.close,
-                size: 20,
-                weight: 2,
-              )),
-        ),
-        customeTextField(
-          context,
-          enabled: false,
-          hintext: "Time Zone",
-          Controller: timezoneController,
-          onPresstextFieldContiner: () {
-            commoneBottomSheet(
-                selectedCountry: (_) {},
-                context: context,
-                titile: "Time Zone",
-                onPressed: (index) {
-                  timezoneController.text = index;
-                },
-                itemlist: addadressViewmodel.specificTimeZones);
-          },
-          suffixIcon: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.arrow_drop_down,
-              size: 30,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        customeTextField(context,
-            enabled: false,
-            hintext: "From Date",
-            Controller: fromDateController, onPresstextFieldContiner: () {
-          dateBottomSheet(context: context, titile: "From Date");
-          addadressViewmodel.updateFromDatecontroller(fromDateController);
-        }),
-        customeTextField(context,
-            enabled: false,
-            hintext: "To Date",
-            Controller: toDateController, onPresstextFieldContiner: () {
-          dateBottomSheet(context: context, titile: 'To Date');
-          addadressViewmodel.updateFromDatecontroller(toDateController);
-        }),
-        SizedBox(
-          height: 31,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          value,
+          child,
+        ) {
+          return ListView(
+            // physics: physics,
+
             children: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => WebViewApp(
-                                  controller: controller,
-                                  onSubmit: (text) async {
-                                    var contentbase64 = """<!doctype html>
-                                         <html><head><meta name="viewport" content="width=device-width,
-                                          initial-scale=1.0"></head> <body style='"margin: 0; padding: 0;
-                                          '><div> $text </div> </body> </html>""";
-                                    await controller
-                                        .loadHtmlString(contentbase64)
-                                        .then((e) {
-                                      setState(() {
-                                        webViewText = text;
-                                      });
-                                    });
-                                  },
-                                  webViewText:
-                                      webViewText == "" ? '' : webViewText,
-                                )));
-                  },
-                  child: Text(webViewText == "" ? 'Add' : "Edit")),
-            ],
-          ),
-        ),
-        webViewText != ''
-            ? Container(
-                height: 80,
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.only(
-                  left: 20,
-                  right: 10,
-                  top: 10,
-                ),
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 184, 207, 230),
-                    border: Border.all(
-                        width: 3,
-                        color: const Color.fromARGB(255, 93, 156, 97)),
-                    borderRadius: BorderRadius.circular(10)),
-                child: ListView(
-                  children: [
-                    WebViewStack(
-                      controller: controller,
+              customeTextField(context,
+                  Controller: addressTypeController,
+                  hintext: "Address Type",
+                  enabled: false,
+                  suffixIcon: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      size: 30,
+                      color: Colors.black,
                     ),
-                  ],
-                ))
-            : Container(
-                height: 80,
+                  ), onPresstextFieldContiner: () {
+                customeBottomSheet(
+                    addtypeMethod: AddType.addAddress,
+                    context: context,
+                    listileOntap2: () {
+                      addressTypeController.text = "Secondary Address";
+                    },
+                    listileOntap1: () {
+                      addressTypeController.text = "Primary Address";
+                    });
+              },
+                  trailingIcon: SizedBox(
+                      height: 55,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.info),
+                        iconSize: 25,
+                        color: Colors.green[900],
+                      ))),
+              Container(
                 margin: const EdgeInsets.only(
                   left: 20,
                   right: 10,
                   top: 10,
                 ),
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 184, 207, 230),
-                    border: Border.all(
-                        width: 3,
-                        color: const Color.fromARGB(255, 93, 156, 97)),
-                    borderRadius: BorderRadius.circular(10)),
-                child: const Text("")),
-        Container(
-            margin: const EdgeInsets.only(top: 10, bottom: 10),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
-            alignment: Alignment.bottomCenter,
-            child: ElevatedButton(
-                style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all(const Size(10, 40)),
-                    backgroundColor: MaterialStateProperty.all(
-                        const Color.fromARGB(255, 108, 170, 222)),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7.0),
-                    ))),
-                onPressed: () {
-                  addadressViewmodel.editValue == true
-                      ? addadressViewmodel.edititemAddressBook(
-                          ctx: context,
-                          addressLine1: AddressLine1Controller.text,
-                          addressType: addressTypeController.text,
-                          city: cityController.text,
-                          country: countrycodeController.text,
-                          postalCode: postboxController.text,
-                          selectedAdress: selectedAddressController.text,
-                          addressLine2: AddressLine2Controller.text,
-                          apartmentNo: apartmentController.text,
-                          postbox: postboxController.text,
-                          streetName: selectedAdressNameController.text,
-                          streetAddressNo: selectedAdressNoController.text,
-                          countryCode: countrycodeController.text,
-                          county: countyController.text,
-                          zipCode: zipcodeController.text,
-                          timeZone: timezoneController.text,
-                          fromDate: fromDateController.text,
-                          toDate: toDateController.text,
-                          state: stateController.text)
-                      : addadressViewmodel.additemToAddressBook(
-                          ctx: context,
-                          addressLine1: AddressLine1Controller.text,
-                          addressType: addressTypeController.text,
-                          city: cityController.text,
-                          country: countrycodeController.text,
-                          postalCode: postboxController.text,
-                          selectedAdress: selectedAddressController.text,
-                          addressLine2: AddressLine2Controller.text,
-                          apartmentNo: apartmentController.text,
-                          postbox: postboxController.text,
-                          streetName: selectedAdressNameController.text,
-                          streetAddressNo: selectedAdressNoController.text,
-                          countryCode: countrycodeController.text,
-                          county: countyController.text,
-                          zipCode: zipcodeController.text,
-                          timeZone: timezoneController.text,
-                          fromDate: fromDateController.text,
-                          toDate: toDateController.text,
-                          state: stateController.text);
-                },
                 child: const Text(
-                  "Save",
+                  "Location Coordinates",
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 15),
-                )))
-      ],
-    );
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              addadressViewmodel.changeAddressFeild == true
+                  ? Container(
+                      height: 60,
+                      margin: const EdgeInsets.only(
+                        left: 20,
+                        right: 10,
+                        top: 10,
+                      ),
+                      padding: const EdgeInsets.only(left: 10.0, top: 10),
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 184, 207, 230),
+                          border: Border.all(
+                              width: 2,
+                              color: const Color.fromARGB(255, 93, 156, 97)),
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Text(
+                        selectedAddressController.text,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                    )
+                  : customeTextField(context,
+                      continreHight: 35,
+                      enabled: false,
+                      hintext: "Click here to pick your location",
+                      onPresstextFieldContiner: () async {
+                      await addadressViewmodel.determinePosition().then((_) {
+                        selectedAddressController.text =
+                            addadressViewmodel.unserLocation!;
+                      });
+                    },
+                      prefixIcon: const Icon(
+                        Icons.my_location_rounded,
+                        color: Colors.black,
+                      )),
+              customeTextField(context,
+                  hintext: "Address Line 1",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel
+                            .clearTextFormFild(AddressLine1Controller);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  trailingIcon: SizedBox(
+                      height: 55,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.info),
+                        iconSize: 25,
+                        color: Colors.green[900],
+                      )),
+                  Controller: AddressLine1Controller),
+              customeTextField(context,
+                  hintext: "Address Line 2",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel
+                            .clearTextFormFild(AddressLine2Controller);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  Controller: AddressLine2Controller),
+              customeTextField(context,
+                  hintext: "postbox",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel.clearTextFormFild(postboxController);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  Controller: postboxController),
+              customeTextField(context,
+                  hintext: "Apartment No",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel
+                            .clearTextFormFild(apartmentController);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  Controller: apartmentController),
+              customeTextField(context,
+                  hintext: "Street No",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel
+                            .clearTextFormFild(selectedAdressNoController);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  trailingIcon: SizedBox(
+                      height: 55,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.info),
+                        iconSize: 25,
+                        color: Colors.green[900],
+                      )),
+                  Controller: selectedAdressNoController),
+              customeTextField(
+                context,
+                hintext: "Street Name",
+                suffixIcon: IconButton(
+                    onPressed: () {
+                      addadressViewmodel
+                          .clearTextFormFild(selectedAdressNameController);
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      size: 20,
+                      weight: 2,
+                    )),
+                Controller: selectedAdressNameController,
+                trailingIcon: SizedBox(
+                    height: 55,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.info),
+                      iconSize: 25,
+                      color: Colors.green[900],
+                    )),
+              ),
+              //here selecting country code
+              customeTextField(
+                context,
+                Controller: countrycodeController,
+                enabled: false,
+                hintext: "Country Code",
+                onPresstextFieldContiner: () {
+                  commoneBottomSheet(
+                      selectedCountry: (_) {},
+                      onPressed: (item) {
+                        countrycodeController.text = item;
+                        stateController.clear();
+                        countyController.clear();
+                        addadressViewmodel.getstatelist(item);
+                      },
+                      context: context,
+                      titile: "Countrycode",
+                      itemlist: addadressViewmodel.countries);
+                },
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              //here are the state code
+              customeTextField(
+                context,
+                Controller: stateController,
+                enabled: false,
+                hintext: "State",
+                onPresstextFieldContiner: () {
+                  commoneBottomSheet(
+                      selectedCountry: (_) {},
+                      onPressed: (item) {
+                        stateController.text = item;
+                        countyController.clear();
+                      },
+                      context: context,
+                      titile: "State",
+                      itemlist: addadressViewmodel.currentStateList);
+                },
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              //here are the state code
+              customeTextField(
+                context,
+                Controller: countyController,
+                enabled: false,
+                hintext: "County",
+                onPresstextFieldContiner: () {
+                  commoneBottomSheet(
+                      selectedCountry: (_) {},
+                      onPressed: (item) {
+                        countyController.text = item;
+                      },
+                      context: context,
+                      titile: "County",
+                      itemlist: addadressViewmodel.currentCountyList);
+                },
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              customeTextField(context,
+                  hintext: "City",
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        addadressViewmodel.clearTextFormFild(cityController);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        weight: 2,
+                      )),
+                  Controller: cityController),
+              customeTextField(
+                context,
+                Controller: zipcodeController,
+                hintext: "ZipCode",
+                suffixIcon: IconButton(
+                    onPressed: () {
+                      addadressViewmodel.clearTextFormFild(zipcodeController);
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      size: 20,
+                      weight: 2,
+                    )),
+              ),
+              customeTextField(
+                context,
+                enabled: false,
+                hintext: "Time Zone",
+                Controller: timezoneController,
+                onPresstextFieldContiner: () {
+                  commoneBottomSheet(
+                      selectedCountry: (_) {},
+                      context: context,
+                      titile: "Time Zone",
+                      onPressed: (index) {
+                        timezoneController.text = index;
+                      },
+                      itemlist: addadressViewmodel.specificTimeZones);
+                },
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              customeTextField(context,
+                  enabled: false,
+                  hintext: "From Date",
+                  Controller: fromDateController, onPresstextFieldContiner: () {
+                dateBottomSheet(context: context, titile: "From Date");
+                addadressViewmodel.updateFromDatecontroller(fromDateController);
+              }),
+              customeTextField(context,
+                  enabled: false,
+                  hintext: "To Date",
+                  Controller: toDateController, onPresstextFieldContiner: () {
+                dateBottomSheet(context: context, titile: 'To Date');
+                addadressViewmodel.updateFromDatecontroller(toDateController);
+              }),
+              SizedBox(
+                height: 31,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    !kIsWeb
+                        ? TextButton(
+                            onPressed: () async {
+                              htmlString.value = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HtmlEditorExample(
+                                            webViewText: htmlString.value,
+                                          )));
+                            },
+                            child:
+                                Text(htmlString.value == "" ? 'Add' : "Edit"))
+                        : TextButton(
+                            onPressed: () {},
+                            child:
+                                Text(htmlString.value == "" ? 'Add' : "Edit"))
+                  ],
+                ),
+              ),
+              htmlString.value != ''
+                  ? Container(
+                      height: 500,
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.only(
+                        left: 20,
+                        right: 10,
+                        top: 10,
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 184, 207, 230),
+                          border: Border.all(
+                              width: 3,
+                              color: const Color.fromARGB(255, 93, 156, 97)),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: WebViewStack(
+                        htmlString: htmlString,
+                      ))
+                  : Container(
+                      height: 80,
+                      margin: const EdgeInsets.only(
+                        left: 20,
+                        right: 10,
+                        top: 10,
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 184, 207, 230),
+                          border: Border.all(
+                              width: 3,
+                              color: const Color.fromARGB(255, 93, 156, 97)),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: const Text("")),
+              Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 10),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          minimumSize:
+                              MaterialStateProperty.all(const Size(10, 40)),
+                          backgroundColor: MaterialStateProperty.all(
+                              const Color.fromARGB(255, 108, 170, 222)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                          ))),
+                      onPressed: () {
+                        addadressViewmodel.editValue == true
+                            ? addadressViewmodel.edititemAddressBook(
+                                ctx: context,
+                                addressLine1: AddressLine1Controller.text,
+                                addressType: addressTypeController.text,
+                                city: cityController.text,
+                                country: countrycodeController.text,
+                                postalCode: postboxController.text,
+                                selectedAdress: selectedAddressController.text,
+                                addressLine2: AddressLine2Controller.text,
+                                apartmentNo: apartmentController.text,
+                                postbox: postboxController.text,
+                                streetName: selectedAdressNameController.text,
+                                streetAddressNo:
+                                    selectedAdressNoController.text,
+                                countryCode: countrycodeController.text,
+                                county: countyController.text,
+                                zipCode: zipcodeController.text,
+                                timeZone: timezoneController.text,
+                                fromDate: fromDateController.text,
+                                toDate: toDateController.text,
+                                state: stateController.text)
+                            : addadressViewmodel.additemToAddressBook(
+                                ctx: context,
+                                addressLine1: AddressLine1Controller.text,
+                                addressType: addressTypeController.text,
+                                city: cityController.text,
+                                country: countrycodeController.text,
+                                postalCode: postboxController.text,
+                                selectedAdress: selectedAddressController.text,
+                                addressLine2: AddressLine2Controller.text,
+                                apartmentNo: apartmentController.text,
+                                postbox: postboxController.text,
+                                streetName: selectedAdressNameController.text,
+                                streetAddressNo:
+                                    selectedAdressNoController.text,
+                                countryCode: countrycodeController.text,
+                                county: countyController.text,
+                                zipCode: zipcodeController.text,
+                                timeZone: timezoneController.text,
+                                fromDate: fromDateController.text,
+                                toDate: toDateController.text,
+                                state: stateController.text);
+                      },
+                      child: const Text(
+                        "Save",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 15),
+                      )))
+            ],
+          );
+        });
   }
 
   Future<dynamic> customeBottomSheet(
