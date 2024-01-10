@@ -99,11 +99,6 @@ class _MyWidgetState extends State<WebViewFullScreen> {
                       minHeight: 5,
                     ),
                   ),
-                // LinearProgressIndicator(
-                //   color: Colors.blue,
-                //   minHeight: 10,
-                //   value: loadingPercentage / 100.0,
-                // ),
               ],
             ),
           ),

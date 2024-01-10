@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phone_book/home/add_item/view_model/add_address_viewmodel.dart';
+import 'package:phone_book/home/email_composer/view/email_composer.dart';
 import 'package:phone_book/home/lunch_screen/view/lunch_page.dart';
 import 'package:provider/provider.dart';
 
@@ -47,6 +48,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          FloatingActionButton(
+            heroTag: "3",
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0))),
+            backgroundColor: Colors.green[900],
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EmailComposer()
+                ),
+              );
+            },
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
           FloatingActionButton(
             heroTag: "1",
             shape: const RoundedRectangleBorder(
