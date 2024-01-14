@@ -1,32 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class ConfirmationWidget extends StatefulWidget {
+class ConfirmationWidget extends StatelessWidget {
   const ConfirmationWidget(
       {super.key,
       required this.from,
       required this.to,
       required this.subject,
-      required this.htmlString});
+      required this.htmlController});
   final String from;
   final String to;
   final String subject;
-  final String htmlString;
-
-  @override
-  State<ConfirmationWidget> createState() => _ConfirmationWidgetState();
-}
-
-class _ConfirmationWidgetState extends State<ConfirmationWidget> {
-  late final WebViewController controllerNew;
-  @override
-  void initState() {
-    super.initState();
-    controllerNew = WebViewController()..loadHtmlString("""<!doctype html>
-     <html><head><meta name="viewport" content="width=device-width,
-     initial-scale=1.0"></head> <body style='"margin: 0; padding: 0;
-     '><div> ${widget.htmlString} </div> </body> </html>""");
-  }
+  final WebViewController htmlController;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +22,9 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
-          textFieldCoustome(text: 'From:', value: widget.from),
-          textFieldCoustome(text: 'To:', value: widget.to),
-          textFieldCoustome(text: 'Subject:', value: widget.subject),
+          textFieldCoustome(text: 'From:', value: from),
+          textFieldCoustome(text: 'To:', value: to),
+          textFieldCoustome(text: 'Subject:', value: subject),
           const SizedBox(
             height: 30,
           ),
@@ -49,7 +34,8 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: WebViewWidget(
-                controller: controllerNew,
+               
+                controller: htmlController,
               ),
             ),
           ),
@@ -63,14 +49,10 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                     borderRadius: BorderRadius.circular(7.0),
                   ))),
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const DashboardScreen()),
-                // );
+                Navigator.pop(context);
               },
               child: const Text(
-                "Save",
+                "Close",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -95,12 +77,9 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           ),
         ),
-        title: TextFormField(
-          decoration: InputDecoration(
-              contentPadding: const EdgeInsets.only(left: 10.0),
-              hintText: value,
-              hintStyle: const TextStyle(fontSize: 17, color: Colors.black),
-              border: const UnderlineInputBorder()),
+        title: Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ),
     );

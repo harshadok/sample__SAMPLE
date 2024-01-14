@@ -65,7 +65,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   @override
   void initState() {
-    changeContineriew = false;
+    changeContineriew = true;
     if (widget.addType == AddType.addAddress) {}
     if (widget.addressItem != null) {
       addressTypeController.text = widget.addressItem!.addressType!;

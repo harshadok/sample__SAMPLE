@@ -15,7 +15,6 @@ class HtmlEditorExample extends StatefulWidget {
 }
 
 class HtmlEditorExampleState extends State<HtmlEditorExample> {
-  String result = '';
   late HtmlEditorController controller = HtmlEditorController();
 
   @override
@@ -80,8 +79,12 @@ class HtmlEditorExampleState extends State<HtmlEditorExample> {
                 return true;
               },
             ),
-            otherOptions: const OtherOptions(
-              decoration: BoxDecoration(),
+            otherOptions: OtherOptions(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                      color: const Color.fromARGB(255, 196, 194, 194)),
+                  borderRadius: BorderRadius.circular(10)),
               height: 800,
             ),
           )),
